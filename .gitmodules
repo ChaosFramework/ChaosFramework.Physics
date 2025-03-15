@@ -1,0 +1,3 @@
+[submodule "submodules/ChaosPresets.Targets"]
+	path = submodules/ChaosPresets.Targets
+	url = ../ChaosPresets.Targets.git
