@@ -2,6 +2,7 @@ using ChaosFramework.Collections;
 using ChaosFramework.IO;
 using ChaosFramework.Math;
 using ChaosFramework.Math.Vectors;
+using ChaosFramework.Shapes.Convex;
 using System.IO;
 using static ChaosFramework.Math.Clamping;
 using SysCol = System.Collections.Generic;
@@ -168,7 +169,7 @@ namespace ChaosFramework.Physics.States
         public virtual Matrix GetTransform()
             => baseTransform * Matrix.Translation(position);
 
-        public virtual Vector3f GetVelocityAt(Vector3f absolutePosition, Shapes.PhysicalShape shape)
+        public virtual Vector3f GetVelocityAt(Vector3f absolutePosition, Shape shape)
             => velocity;
 
         public virtual void Move(float time)
@@ -211,7 +212,7 @@ namespace ChaosFramework.Physics.States
             return clone;
         }
 
-        public virtual void SetVelocityAt(Vector3f absolutePosition, Vector3f velocity, Shapes.PhysicalShape shape)
+        public virtual void SetVelocityAt(Vector3f absolutePosition, Vector3f velocity, Shape shape)
             => this.velocity = velocity;
     }
 }

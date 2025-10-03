@@ -1,19 +1,20 @@
 using ChaosFramework.Collections;
 using ChaosFramework.Math;
 using ChaosFramework.Math.Vectors;
-using SysCol = System.Collections.Generic;
+using ChaosFramework.Shapes.Convex;
+using ChaosFramework.Shapes.Intersection;
 using static ChaosFramework.Math.Clamping;
 using static ChaosFramework.Math.Exponentials;
+using SysCol = System.Collections.Generic;
 
 namespace ChaosFramework.Physics
 {
-    using Shapes;
     using States;
 
     public class Physical
     {
         public delegate bool ValidateCollision(Physical collisionPartner, CollisionData data);
-        public delegate SysCol.IEnumerable<PhysicalShape> GetRelevantShapes(Physical collisionPartner);
+        public delegate SysCol.IEnumerable<Shape> GetRelevantShapes(Physical collisionPartner);
 
         public static bool ValidateCollisionAlways(Physical collisionPartner, CollisionData data)
             => true;
@@ -29,7 +30,7 @@ namespace ChaosFramework.Physics
 
         public readonly object creator;
         public readonly LinkedList<CollisionData> currentCollisions = new LinkedList<CollisionData>();
-        public readonly AdvancedLinkedList<PhysicalShape> shapes = new AdvancedLinkedList<PhysicalShape>();
+        public readonly AdvancedLinkedList<Shape> shapes = new AdvancedLinkedList<Shape>();
 
         public ValidateCollision validateCollision = ValidateCollisionAlways;
         public GetRelevantShapes getRelevantShapes;
@@ -70,10 +71,10 @@ namespace ChaosFramework.Physics
             getRelevantShapes = GetAllShapes;
         }
 
-        public LinkedList<PhysicalShape> GetAllShapes(Physical collisionPartner)
+        public LinkedList<Shape> GetAllShapes(Physical collisionPartner)
             => shapes;
 
-        public void AddShape(params PhysicalShape[] shapes)
+        public void AddShape(params Shape[] shapes)
             => this.shapes.Add(shapes);
 
         public void UpdateShapes(bool forceUpdate = false)
@@ -83,7 +84,7 @@ namespace ChaosFramework.Physics
             float farthestDistanceSq = 0;
             boundingBoxHigh = Vector3f.MIN_VALUE;
             boundingBoxLow = Vector3f.MAX_VALUE;
-            foreach (PhysicalShape shape in shapes)
+            foreach (Shape shape in shapes)
             {
                 shape.Update(appliedTransform, forceUpdate);
                 boundingBoxHigh = Max(boundingBoxHigh, shape.boundingBoxHigh);
@@ -105,7 +106,7 @@ namespace ChaosFramework.Physics
             float maxDist = float.MinValue;
             float dot;
 
-            foreach (PhysicalShape shape in shapes)
+            foreach (Shape shape in shapes)
                 if ((dot = Vector3f.Dot((v = shape.Support(searchDirection)), searchDirection)) > maxDist)
                 {
                     max = v;
@@ -127,18 +128,18 @@ namespace ChaosFramework.Physics
                     return data;
             }
 
-            SysCol.IEnumerable<PhysicalShape> myShapes = getRelevantShapes(collisionPartner);
+            SysCol.IEnumerable<Shape> myShapes = getRelevantShapes(collisionPartner);
             if (myShapes == null || myShapes.Empty())
                 return data;
 
-            SysCol.IEnumerable<PhysicalShape> otherShapes = collisionPartner.getRelevantShapes(this);
+            SysCol.IEnumerable<Shape> otherShapes = collisionPartner.getRelevantShapes(this);
             if (otherShapes == null || otherShapes.Empty())
                 return data;
 
-            foreach (PhysicalShape otherShape in otherShapes)
-                foreach (PhysicalShape myShape in myShapes)
+            foreach (Shape otherShape in otherShapes)
+                foreach (Shape myShape in myShapes)
                 {
-                    LinkedList<Collision.Support> simplex = Collision.Gjk.CheckIntersection(myShape, otherShape);
+                    LinkedList<Support> simplex = ConvexHull.CheckIntersection(myShape, otherShape);
                     if (simplex != null)
                     {
                         Vector3f pointOfImpact1, pointOfImpact2;
@@ -170,8 +171,8 @@ namespace ChaosFramework.Physics
 
         public void Teleport(Vector3f targetPosition)
         {
-            foreach (PhysicalShape shape in shapes)
-                shape.previousFrameShape = shape;
+            foreach (Shape shape in shapes)
+                shape.Reset();
 
             interFrameVelocity = Vector3f.EMPTY;
             state.lockedAxis.Clear();
@@ -186,7 +187,7 @@ namespace ChaosFramework.Physics
             clone.isStatic = isStatic;
             clone.getRelevantShapes = getRelevantShapes;
             clone.validateCollision = validateCollision;
-            foreach (PhysicalShape s in shapes)
+            foreach (Shape s in shapes)
                 clone.shapes.Add(s.CloneTypeless());
 
             return clone;

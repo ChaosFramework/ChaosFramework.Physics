@@ -2,6 +2,7 @@ using ChaosFramework.Collections;
 using ChaosFramework.Components;
 using ChaosFramework.Math;
 using ChaosFramework.Math.Vectors;
+using ChaosFramework.Shapes.Convex;
 using System;
 using System.Diagnostics;
 using static ChaosFramework.Math.Clamping;
@@ -110,8 +111,8 @@ namespace ChaosFramework.Physics
                 Matrix appliedTransform = p.appliedTransform;
                 if (p.lastOldShapeUpdateTransform != appliedTransform)
                 {
-                    foreach (Shapes.PhysicalShape shape in p.shapes)
-                        shape.previousFrameShape = shape.CloneTypelessTransformed();
+                    foreach (Shape shape in p.shapes)
+                        shape.AdvanceFrame();
 
                     p.lastOldShapeUpdateTransform = appliedTransform;
                 }
@@ -239,8 +240,8 @@ namespace ChaosFramework.Physics
 
                 // Update inter-frame shapes
                 if (p.state.velocity.LengthSq() > interFrameCollisionVelocityThresholdSq)
-                    foreach (Shapes.PhysicalShape shape in p.shapes)
-                        shape.previousFrameShape = shape.CloneTypelessTransformed();
+                    foreach (Shape shape in p.shapes)
+                        shape.AdvanceFrame();
 
                 // Update ray bvh
                 const float RAY_BVH_MARGIN = 1;
@@ -341,7 +342,7 @@ namespace ChaosFramework.Physics
         public RayImpact ShootRay(object shooter, Ray ray, Predicate<Physical> validTargetSelector)
         {
             Physical rayShape = new Physical(shooter, false);
-            rayShape.AddShape(new Shapes.PhysicalShape[] { null });
+            rayShape.AddShape(new Shape[] { null });
             rayShape.state.position = ray.origin;
 
             Assert.NaN(rayShape.state.position);
@@ -362,9 +363,9 @@ namespace ChaosFramework.Physics
                 if ((ray.Project(physical.state.position) - physical.state.position).LengthSq() > physical.hullRadius * physical.hullRadius)
                     continue;
 
-                rayShape.shapes[0] = new Shapes.MeshShape(new Vector3f[] { Vector3f.EMPTY, direction * Sqrt(impact.distanceSq) });
+                rayShape.shapes[0] = new MeshShape(new Vector3f[] { Vector3f.EMPTY, direction * Sqrt(impact.distanceSq) });
                 rayShape.UpdateShapes(true);
-                foreach (Shapes.PhysicalShape s in physical.getRelevantShapes(rayShape))
+                foreach (Shape s in physical.getRelevantShapes(rayShape))
                     foreach (Vector3f hit in s.CheckLine(ray.origin, direction))
                     {
                         if (Vector3f.Dot(hit - ray.origin, direction) < 0)

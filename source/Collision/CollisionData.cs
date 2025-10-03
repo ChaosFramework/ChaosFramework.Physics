@@ -1,6 +1,6 @@
 using ChaosFramework.Collections;
 using ChaosFramework.Math.Vectors;
-using ChaosFramework.Physics.Shapes;
+using ChaosFramework.Shapes.Convex;
 
 namespace ChaosFramework.Physics
 {
@@ -8,7 +8,7 @@ namespace ChaosFramework.Physics
     {
         public class ShapeCollisionData
         {
-            public readonly PhysicalShape s1, s2;
+            public readonly Shape s1, s2;
             public readonly Vector3f v1, v2;
 
             /// <summary> The normalized direction of the penetration of s1 in s2. </summary>
@@ -22,8 +22,8 @@ namespace ChaosFramework.Physics
             public readonly Vector3f impact1, impact2;
 
             public ShapeCollisionData(
-                PhysicalShape s1,
-                PhysicalShape s2,
+                Shape s1,
+                Shape s2,
                 Vector3f v1,
                 Vector3f v2,
                 Vector3f penetration,

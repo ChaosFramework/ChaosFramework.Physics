@@ -1,6 +1,7 @@
 using ChaosFramework.IO;
 using ChaosFramework.Math;
 using ChaosFramework.Math.Vectors;
+using ChaosFramework.Shapes.Convex;
 using System.IO;
 using static ChaosFramework.Math.Exponentials;
 using static ChaosFramework.Math.Transforms;
@@ -22,7 +23,7 @@ namespace ChaosFramework.Physics.States
         [ChaosIO.RegisterType]
         static void InitIO()
             => ChaosIO.AddType(Read, Write);
-        
+
         public Quaternion orientation = Quaternion.IDENTITY;
         public Vector3f angularVelocity, angularAcceleration;
         public float angularFriction = 0.5f;
@@ -45,15 +46,15 @@ namespace ChaosFramework.Physics.States
         }
 
         public override Matrix GetTransform()
-            => baseTransform 
-             * Matrix.RotationQuaternion(orientation) 
-             * squishMatrix 
+            => baseTransform
+             * Matrix.RotationQuaternion(orientation)
+             * squishMatrix
              * Matrix.Translation(position);
 
-        public override Vector3f GetVelocityAt(Vector3f absolutePosition, Shapes.PhysicalShape shape)
+        public override Vector3f GetVelocityAt(Vector3f absolutePosition, Shape shape)
             => velocity + Vector3f.Cross(position - absolutePosition, angularVelocity);
 
-        public override void SetVelocityAt(Vector3f absolutePosition, Vector3f velocity, Shapes.PhysicalShape shape)
+        public override void SetVelocityAt(Vector3f absolutePosition, Vector3f velocity, Shape shape)
         {
             Vector3f currentVelocity = GetVelocityAt(absolutePosition, shape);
             Vector3f difference = velocity - currentVelocity;

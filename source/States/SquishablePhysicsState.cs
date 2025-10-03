@@ -179,8 +179,8 @@ namespace ChaosFramework.Physics.States
         }
 
         public override Matrix GetTransform()
-            => baseTransform 
-             * squishMatrix 
+            => baseTransform
+             * squishMatrix
              * Matrix.Translation(position);
 
         public override void Save(BinaryWriter wr)
