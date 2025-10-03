@@ -1,4 +1,5 @@
 using ChaosFramework.Math.Vectors;
+using ChaosFramework.Shapes.Intersection;
 
 namespace ChaosFramework.Physics
 {

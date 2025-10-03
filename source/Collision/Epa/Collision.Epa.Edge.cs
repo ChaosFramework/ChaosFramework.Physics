@@ -1,3 +1,5 @@
+using ChaosFramework.Shapes.Intersection;
+
 namespace ChaosFramework.Physics
 {
     static partial class Collision
@@ -16,7 +18,7 @@ namespace ChaosFramework.Physics
                 }
 
                 public bool IsEqual(Edge compare)
-                    => a.IsEqual(compare.b) && b.IsEqual(compare.a);
+                    => a.IsMinkowskiEqual(compare.b) && b.IsMinkowskiEqual(compare.a);
             }
         }
     }

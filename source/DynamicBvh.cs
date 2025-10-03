@@ -6,7 +6,6 @@
  * For license information check the 'License' directory of this repository.
  */
 
-using ChaosFramework.Collections;
 using ChaosFramework.Math;
 using SysCol = System.Collections.Generic;
 using static ChaosFramework.Math.Clamping;

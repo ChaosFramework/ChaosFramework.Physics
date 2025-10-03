@@ -1,4 +1,5 @@
 using ChaosFramework.Math.Vectors;
+using ChaosFramework.Shapes.Intersection;
 
 namespace ChaosFramework.Physics.Forces
 {
@@ -15,7 +16,7 @@ namespace ChaosFramework.Physics.Forces
 
         public override void ApplyTo(Physical p, float time)
         {
-            if (Collision.CheckBoundingBoxIntersection(p.boundingBoxLow, p.boundingBoxHigh, low, high))
+            if (Bounds.CheckBoundingBoxIntersection(p.boundingBoxLow, p.boundingBoxHigh, low, high))
                 base.ApplyTo(p, time);
         }
     }

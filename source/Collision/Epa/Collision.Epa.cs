@@ -1,6 +1,7 @@
 using ChaosFramework.Collections;
 using ChaosFramework.Math.Vectors;
-using ChaosFramework.Physics.Shapes;
+using ChaosFramework.Shapes.Convex;
+using ChaosFramework.Shapes.Intersection;
 using System;
 using static ChaosFramework.Math.Clamping;
 
@@ -13,8 +14,8 @@ namespace ChaosFramework.Physics
             const short MAX_ITERATIONS = 100;
 
             public static Vector3f GetPenetrationVector(
-                PhysicalShape s1,
-                PhysicalShape s2,
+                Shape s1,
+                Shape s2,
                 LinkedList<Support> simplex,
                 out Vector3f pointOfImpactA,
                 out Vector3f pointOfImpactB

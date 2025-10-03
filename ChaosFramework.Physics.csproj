@@ -34,6 +34,7 @@
   <Import Project="submodules/ChaosPresets.References/ProjectReferences/ChaosFramework.Core.targets" />
   <Import Project="submodules/ChaosPresets.References/ProjectReferences/ChaosFramework.IO.targets" />
   <Import Project="submodules/ChaosPresets.References/ProjectReferences/ChaosFramework.Math.targets" />
+  <Import Project="submodules/ChaosPresets.References/ProjectReferences/ChaosFramework.Shapes.targets" />
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>

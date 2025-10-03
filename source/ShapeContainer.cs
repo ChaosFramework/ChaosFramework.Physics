@@ -2,8 +2,8 @@ using ChaosFramework.Collections;
 using ChaosFramework.Core;
 using ChaosFramework.IO.Containers;
 using ChaosFramework.IO.Streams;
-using ChaosFramework.Math;
 using ChaosFramework.Math.Vectors;
+using ChaosFramework.Shapes.Convex;
 using System;
 using System.IO;
 using static System.Text.Encoding;
@@ -12,7 +12,7 @@ namespace ChaosFramework.Physics
 {
     using Shapes;
 
-    public class ShapeContainer : AssetContainer<PhysicalShape[]>
+    public class ShapeContainer : AssetContainer<Shape[]>
     {
         class ParserException : Exception
         {
@@ -32,13 +32,13 @@ namespace ChaosFramework.Physics
         static string TrimString(string s)
             => s.Trim();
 
-        static void Kill(PhysicalShape[] e)
+        static void Kill(Shape[] e)
         { }
 
-        static AssetLoadException<PhysicalShape[]> CreateAssetLoadException(Key key, string msg, int line)
-            => new AssetLoadException<PhysicalShape[]>(key, new ParserException(msg, line));
+        static AssetLoadException<Shape[]> CreateAssetLoadException(Key key, string msg, int line)
+            => new AssetLoadException<Shape[]>(key, new ParserException(msg, line));
 
-        static PhysicalShape[] ParseObjFile(Key key, string text)
+        static Shape[] ParseObjFile(Key key, string text)
         {
             bool parseIndividualFaces = false;
             float faceThickness = 1;
@@ -48,7 +48,7 @@ namespace ChaosFramework.Physics
                 );
 
             string currentObj = "#";
-            LinkedList<PhysicalShape> shapes = new LinkedList<PhysicalShape>();
+            LinkedList<Shape> shapes = new LinkedList<Shape>();
             LinkedList<Vector3f> shapeVertList = new LinkedList<Vector3f>();
             LinkedList<Vector3f> vertList = new LinkedList<Vector3f>();
             LinkedList<Vector3f> normalList = new LinkedList<Vector3f>();
@@ -154,10 +154,10 @@ namespace ChaosFramework.Physics
             return shapes.ToArray();
         }
 
-        static void CreateShape(string name, LinkedList<Vector3f> pos, LinkedList<PhysicalShape> shapes)
+        static void CreateShape(string name, LinkedList<Vector3f> pos, LinkedList<Shape> shapes)
         {
             Vector3f[] posArr = pos.ToArray();
-            shapes.Add(name.EndsWith("_Sphere") ? (PhysicalShape)SphereShape.FromPointCloud(posArr) : new MeshShape(posArr, true));
+            shapes.Add(name.EndsWith("_Sphere") ? (Shape)SphereShape.GetHullFromPoints(posArr) : new MeshShape(posArr, true));
             shapes.last.name = name;
 
             pos.Clear();
@@ -167,10 +167,10 @@ namespace ChaosFramework.Physics
             : base(streamSource, false)
         { }
 
-        protected override void DisposeItem(PhysicalShape[] obj)
+        protected override void DisposeItem(Shape[] obj)
         { }
 
-        protected override PhysicalShape[] LoadFromStream(Key key, Stream resource, CancellationToken cancel)
+        protected override Shape[] LoadFromStream(Key key, Stream resource, CancellationToken cancel)
         {
             if (key.key.EndsWith(".obj"))
             {
@@ -180,15 +180,15 @@ namespace ChaosFramework.Physics
             }
             else if (key.key.EndsWith(".gmdl") || key.key.EndsWith(".agmdl"))
                 using (BinaryReader rd = new BinaryReader(resource))
-                    return new[] { new MeshShape(MeshData.FromStream(rd).pos, true) };
+                    return new[] { new MeshShape(MeshData.FromStream(rd).pos.ToArray(), true) };
 
             throw new Exception("Invalid file extension.");
         }
 
         public override Entry Load(string key, Disposable monitor1, params Disposable[] monitors)
         {
-            PhysicalShape[] baseShapes = base.Load(key, monitor1, monitors);
-            PhysicalShape[] output = new PhysicalShape[baseShapes.Length];
+            Shape[] baseShapes = base.Load(key, monitor1, monitors);
+            Shape[] output = new Shape[baseShapes.Length];
             for (int i = 0; i < output.Length; i++)
                 output[i] = baseShapes[i].CloneTypeless();
 

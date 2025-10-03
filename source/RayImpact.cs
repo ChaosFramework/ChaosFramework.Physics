@@ -1,3 +1,4 @@
+using ChaosFramework.Shapes.Convex;
 using ChaosFramework.Math.Vectors;
 
 namespace ChaosFramework.Physics
@@ -11,7 +12,7 @@ namespace ChaosFramework.Physics
         public readonly Vector3f direction;
         public Vector3f impact;
         public Physical physical;
-        public Shapes.PhysicalShape shape;
+        public Shape shape;
         public float distanceSq;
 
         public RayImpact(Vector3f origin, Vector3f direction)
