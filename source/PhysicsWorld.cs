@@ -365,21 +365,23 @@ namespace ChaosFramework.Physics
 
                 rayShape.shapes[0] = new MeshShape(new Vector3f[] { Vector3f.EMPTY, direction * Sqrt(impact.distanceSq) });
                 rayShape.UpdateShapes(true);
-                foreach (Shape s in physical.getRelevantShapes(rayShape))
-                    foreach (Vector3f hit in s.CheckLine(ray.origin, direction))
-                    {
-                        if (Vector3f.Dot(hit - ray.origin, direction) < 0)
-                            continue;
-
-                        float impactDistSq = (hit - ray.origin).LengthSq();
-                        if (impactDistSq < impact.distanceSq)
+                SysCol.IEnumerable<Shape> relevant = physical.getRelevantShapes(rayShape);
+                if (relevant != null)
+                    foreach (Shape s in relevant)
+                        foreach (Vector3f hit in s.CheckLine(ray.origin, direction))
                         {
-                            impact.impact = hit;
-                            impact.distanceSq = impactDistSq;
-                            impact.physical = physical;
-                            impact.shape = s;
+                            if (Vector3f.Dot(hit - ray.origin, direction) < 0)
+                                continue;
+
+                            float impactDistSq = (hit - ray.origin).LengthSq();
+                            if (impactDistSq < impact.distanceSq)
+                            {
+                                impact.impact = hit;
+                                impact.distanceSq = impactDistSq;
+                                impact.physical = physical;
+                                impact.shape = s;
+                            }
                         }
-                    }
             }
 
             return impact;
