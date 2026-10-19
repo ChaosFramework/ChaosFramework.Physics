@@ -19,7 +19,7 @@ namespace ChaosFramework.Physics
 
             float discriminant = q * q - gSquared * relativeTargetPosition.LengthSq();
             if (discriminant < 0)
-                return Vector3f.NAN;
+                discriminant = 0;
 
             discriminant = Sqrt(discriminant);
             float t = 0;
