@@ -12,14 +12,41 @@ namespace ChaosFramework.Physics
             MinTime
         }
 
-        public static Vector3f GetLaunchVelocity(Vector3f relativeTargetPosition, float maxLaunchSpeed, Vector3f gravity, AimMode mode)
+        /// <summary>
+        ///     Attempts to calculate the launch vector necessary to hit
+        ///     the given <paramref name="relativeTargetPosition"/>.
+        /// </summary>
+        /// <param name="relativeTargetPosition"> The target to hit. </param>
+        /// <param name="maxLaunchSpeed"> Maximum length of the launch vector. </param>
+        /// <param name="gravity"> Forces that affect the launch angle. </param>
+        /// <param name="mode"> What kind of trajectory to aim for if multiple angles are possible. </param>
+        /// <param name="result">
+        ///     The exact launch vector to hit the target, if successful;
+        ///     A best guess otherwise.
+        /// </param>
+        /// <returns>
+        ///     <see langword="true"/> if the calculation was successful;
+        ///     <see langword="false"/> if the target can't be hit with the provided configuration.
+        /// </returns>
+        public static bool GetLaunchVelocity(
+            Vector3f relativeTargetPosition,
+            float maxLaunchSpeed,
+            Vector3f gravity,
+            AimMode mode,
+            out Vector3f result
+            )
         {
+            bool success = true;
+
             float gSquared = gravity.LengthSq();
             float q = maxLaunchSpeed * maxLaunchSpeed + Vector3f.Dot(relativeTargetPosition, gravity);
 
             float discriminant = q * q - gSquared * relativeTargetPosition.LengthSq();
             if (discriminant < 0)
-                return Vector3f.NAN;
+            {
+                success = false;
+                discriminant = 0;
+            }
 
             discriminant = Sqrt(discriminant);
             float t = 0;
@@ -42,7 +69,8 @@ namespace ChaosFramework.Physics
                     }
             }
 
-            return relativeTargetPosition * (1 / t) - gravity * (t * 0.5f);
+            result = relativeTargetPosition * (1 / t) - gravity * (t * 0.5f);
+            return success;
         }
 
         public static float GetAngle(Vector3f planeNormal, Vector3f direction)
